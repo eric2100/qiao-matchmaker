@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="description" content="重溫 DOS、ETBASIC 年代的姓名速配樂趣。喬太守亂點鴛鴦譜，自製懷舊致敬版，免費遊玩、姓名不傳送。">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>喬太守亂點鴛鴦譜</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: "Microsoft JhengHei", "PingFang TC", sans-serif;
+    background: linear-gradient(135deg, #2b1055 0%, #7597de 100%);
+    padding: 20px;
+  }
+
+  .container {
+    width: 100%;
+    max-width: 560px;
+    background: rgba(255, 255, 255, 0.96);
+    border-radius: 20px;
+    padding: 36px 30px 30px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.35);
+    text-align: center;
+  }
+
+  h1 {
+    font-size: 26px;
+    color: #2b1055;
+    letter-spacing: 2px;
+    margin-bottom: 6px;
+  }
+
+  .subtitle {
+    font-size: 13px;
+    color: #888;
+    margin-bottom: 26px;
+    letter-spacing: 1px;
+  }
+
+  .input-group {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .field {
+    flex: 1;
+    text-align: left;
+  }
+
+  .field label {
+    display: block;
+    font-size: 13px;
+    color: #555;
+    margin-bottom: 6px;
+    padding-left: 4px;
+  }
+
+  .field input {
+    width: 100%;
+    padding: 12px 14px;
+    font-size: 16px;
+    border: 2px solid #ddd;
+    border-radius: 10px;
+    outline: none;
+    transition: border-color 0.2s;
+    font-family: inherit;
+  }
+
+  .field input:focus {
+    border-color: #7597de;
+  }
+
+  button {
+    width: 100%;
+    padding: 14px;
+    font-size: 17px;
+    font-weight: bold;
+    letter-spacing: 3px;
+    color: #fff;
+    background: linear-gradient(135deg, #e96443, #904e95);
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+    font-family: inherit;
+  }
+
+  button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(144, 78, 149, 0.4);
+  }
+
+  button:active { transform: translateY(0); }
+
+  .result {
+    margin-top: 24px;
+    padding: 24px 20px;
+    border-radius: 14px;
+    background: #f7f5ff;
+    border: 2px dashed #c9bff0;
+    display: none;
+  }
+
+  .result.show { display: block; animation: fadeIn 0.5s ease; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .names {
+    font-size: 18px;
+    color: #2b1055;
+    margin-bottom: 14px;
+    letter-spacing: 1px;
+  }
+
+  .names .heart {
+    color: #e96443;
+    margin: 0 8px;
+    font-size: 20px;
+  }
+
+  .score {
+    font-size: 52px;
+    font-weight: bold;
+    background: linear-gradient(135deg, #e96443, #904e95);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    line-height: 1.2;
+  }
+
+  .score-unit { font-size: 20px; }
+
+  .comment {
+    margin-top: 10px;
+    font-size: 16px;
+    color: #904e95;
+    font-weight: bold;
+    letter-spacing: 1px;
+  }
+
+  .detail {
+    margin-top: 18px;
+    padding-top: 16px;
+    border-top: 1px solid #e0d9f5;
+    font-size: 13px;
+    color: #777;
+    line-height: 1.9;
+    text-align: left;
+  }
+
+  .detail .row { display: flex; justify-content: space-between; }
+  .detail .row span:last-child { color: #904e95; font-weight: bold; }
+
+  .bar-wrap {
+    margin-top: 14px;
+    height: 10px;
+    background: #e8e3f8;
+    border-radius: 5px;
+    overflow: hidden;
+  }
+
+  .bar {
+    height: 100%;
+    width: 0;
+    border-radius: 5px;
+    background: linear-gradient(90deg, #e96443, #904e95);
+    transition: width 0.8s ease;
+  }
+
+  .footer {
+    margin-top: 20px;
+    font-size: 11px;
+    color: #bbb;
+    letter-spacing: 1px;
+  }
+
+  .field { min-width: 0; }
+  .detail .row { gap: 12px; flex-wrap: wrap; }
+  .detail .row span { overflow-wrap: anywhere; }
+  .intro { font-size: 13px; color: #666; line-height: 1.8; margin-bottom: 20px; }
+  .actions { display: flex; gap: 10px; margin-top: 16px; }
+  .actions button { font-size: 13px; letter-spacing: 1px; padding: 10px; }
+  .notice { font-size: 12px; color: #777; margin-top: 14px; line-height: 1.8; }
+  #status { min-height: 24px; font-size: 13px; color: #904e95; margin-top: 10px; }
+  .footer a { color: #70618d; }
+  button:focus-visible { outline: 3px solid #2b1055; outline-offset: 3px; }
+  @media (max-width: 420px) { .container { padding: 28px 18px; } h1 { font-size: 23px; } .input-group { flex-direction: column; } }
+  @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation: none !important; transition: none !important; } }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h1>喬太守亂點鴛鴦譜</h1>
+  <p class="subtitle">— 姓名拆字速配 · 懷舊致敬版 —</p>
+
+  <p class="intro">DOS、ETBASIC 年代的那份好奇，現在再玩一次。<br>輸入兩個名字，請喬太守牽條紅線。</p>
+<form id="match-form">
+<div class="input-group">
+    <div class="field">
+      <label for="boy">男方姓名</label>
+      <input type="text" id="boy" maxlength="40" required autocomplete="off" placeholder="請輸入男生姓名">
+    </div>
+    <div class="field">
+      <label for="girl">女方姓名</label>
+      <input type="text" id="girl" maxlength="40" required autocomplete="off" placeholder="請輸入女生姓名">
+    </div>
+  </div>
+
+  <button type="submit">開 始 配 對</button>
+</form>
+<div class="actions"><button type="button" id="example">試試範例</button><button type="button" id="reset">重新開始</button><button type="button" id="copy">複製結果</button></div>
+<p id="status" role="status" aria-live="polite"></p>
+
+  <div class="result" id="result" role="region" aria-label="配對結果" aria-live="polite">
+    <div class="names" id="names"></div>
+    <div class="score"><span id="score">0</span><span class="score-unit">分</span></div>
+    <div class="comment" id="comment"></div>
+    <div class="bar-wrap"><div class="bar" id="bar"></div></div>
+    <div class="detail" id="detail"></div>
+  </div>
+
+  <p class="notice">自製娛樂演算法，非原版復刻，亦非命理或關係判斷依據。<br>姓名僅在本機計算，不儲存、不傳送。未知字以穩定數值估算，並非實際筆畫。</p>
+<div class="footer">僅供娛樂 · 緣分還是靠自己經營<br><a href="https://github.com/eric2100/qiao-matchmaker" target="_blank" rel="noopener noreferrer">GitHub 原始碼 ↗</a></div>
+</div>
+
+<script>
+// ===== 娛樂用筆畫表（沿用初稿資料，未逐字校訂，不宣稱為標準康熙筆畫） =====
+const STROKES = {
+  // 天干地支
+  '甲':5,'乙':1,'丙':5,'丁':2,'戊':5,'己':3,'庚':8,'辛':7,'壬':4,'癸':9,
+  // 數字
+  '一':1,'二':2,'三':3,'四':5,'五':4,'六':4,'七':2,'八':2,'九':2,'十':2,
+  // 常見姓氏
+  '王':4,'李':7,'張':11,'劉':15,'陳':16,'楊':13,'黃':12,'趙':14,'吳':7,
+  '周':8,'徐':10,'孫':10,'馬':10,'朱':6,'胡':11,'郭':15,'何':7,'高':10,
+  '林':8,'羅':20,'鄭':19,'梁':11,'謝':17,'宋':7,'唐':10,'許':11,'韓':17,
+  '馮':12,'鄧':19,'曹':11,'彭':12,'曾':12,'蕭':18,'田':5,'董':15,'袁':10,
+  '潘':16,'于':3,'蔣':17,'蔡':17,'余':7,'杜':7,'葉':15,'程':12,'蘇':22,
+  '魏':18,'呂':7,'丁':2,'任':6,'沈':8,'姚':9,'盧':16,'姜':9,'崔':11,
+  '鍾':17,'譚':19,'陸':16,'汪':8,'范':9,'金':8,'石':5,'廖':14,'賈':13,
+  '夏':10,'韋':9,'付':5,'方':4,'白':5,'鄒':17,'孟':8,'熊':14,'秦':10,
+  '邱':12,'江':7,'尹':4,'薛':19,'閆':12,'段':9,'雷':13,'侯':9,'龍':16,
+  '史':5,'陶':16,'黎':15,'賀':12,'顧':21,'毛':4,'郝':14,'龔':22,'邵':12,
+  '萬':15,'錢':16,'嚴':20,'覃':12,'武':8,'戴':18,'莫':13,'孔':4,'向':6,
+  '常':11,'湯':13,'康':11,'易':8,'喬':12,'賴':16,'文':4,'施':9,'洪':10,
+  // 常見名字用字
+  '偉':11,'芳':10,'娜':10,'敏':11,'靜':16,'麗':19,'強':11,'磊':15,
+  '軍':9,'洋':10,'勇':9,'艷':24,'傑':12,'娟':10,'濤':18,'明':8,
+  '超':12,'秀':7,'霞':17,'平':5,'剛':10,'桂':10,'英':11,'華':12,
+  '玉':5,'萍':14,'紅':9,'娥':10,'玲':10,'芬':10,'燕':16,'彬':11,
+  '斌':12,'宇':6,'浩':11,'凱':12,'鑫':24,'欣':8,'怡':9,'婷':12,
+  '雅':12,'琪':13,'琳':13,'雯':12,'嘉':14,'慧':15,'淑':12,'貞':9,
+  '美':9,'惠':12,'珠':11,'翠':14,'春':9,'菊':14,'蘭':23,'梅':11,
+  '雪':11,'雲':12,'月':4,'星':9,'晨':11,'曦':20,'陽':17,'天':4,
+  '文':4,'武':8,'龍':16,'鳳':14,'鵬':19,'飛':9,'翔':12,'杰':8,
+  '峰':10,'鋒':15,'江':7,'河':9,'海':11,'波':9,'浪':11,'泉':9,
+  '山':3,'川':3,'林':8,'森':12,'木':4,'樹':16,'花':10,'草':12,
+  '仁':4,'義':13,'禮':18,'智':12,'信':9,'忠':8,'孝':7,'廉':13,
+  '國':11,'民':5,'安':6,'邦':11,'泰':10,'和':8,'順':12,'興':16,
+  '建':9,'立':5,'成':7,'功':5,'勝':12,'利':7,'發':12,'財':10,
+  '金':8,'銀':14,'銅':14,'鐵':21,'鋼':16,'石':5,'岩':8,'沙':8,
+  '光':6,'輝':15,'耀':20,'燦':17,'爛':21,'彩':11,'虹':9,'霓':16,
+  '心':4,'怡':9,'悅':11,'喜':12,'樂':15,'歡':22,'笑':10,'甜':11,
+  '香':9,'芬':10,'芳':10,'馨':20,'馥':18,'郁':13,'清':12,'新':13,
+  '柔':9,'軟':11,'溫':14,'暖':13,'涼':11,'冷':7,'熱':15,'烈':10,
+  '青':8,'藍':20,'紫':11,'橙':16,'綠':14,'灰':6,'黑':12,'白':5,
+  '東':8,'南':9,'西':6,'北':5,'中':4,'左':5,'右':5,'前':9,'後':9,
+  '上':3,'下':3,'大':3,'小':3,'多':6,'少':4,'長':8,'短':12,
+  '開':12,'關':19,'來':8,'去':5,'進':15,'出':5,'升':4,'降':9,
+  '家':10,'庭':10,'門':8,'戶':4,'房':8,'屋':9,'室':9,'堂':11,
+  '書':10,'畫':12,'琴':12,'棋':12,'詩':13,'詞':12,'歌':14,'舞':14,
+  '劍':15,'刀':2,'槍':14,'棍':12,'棒':12,'弓':3,'箭':15,'盾':9
+};
+
+// 六神／五行對照（用筆畫尾數）
+const ELEMENTS = ['水','火','木','金','土'];
+
+function getStrokes(ch) {
+  if (STROKES[ch] !== undefined) return STROKES[ch];
+  // 找不到就用 Unicode 碼位做一個穩定值（1~30）
+  const code = ch.codePointAt(0);
+  return (code % 30) + 1;
+}
+
+function analyze(name) {
+  const chars = [...normalizeName(name)];
+  let total = 0;
+  const parts = [];
+  chars.forEach(ch => {
+    const s = getStrokes(ch);
+    total += s;
+    parts.push({ ch, s, estimated: STROKES[ch] === undefined });
+  });
+  return { chars, total, parts };
+}
+
+function normalizeName(name) { return name.normalize('NFKC').replace(/\s+/gu, '').trim(); }
+function escapeHTML(value) { return String(value).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch])); }
+let lastResult = '';
+function match() {
+  const boyEl  = document.getElementById('boy');
+  const girlEl = document.getElementById('girl');
+  const boy  = normalizeName(boyEl.value);
+  const girl = normalizeName(girlEl.value);
+
+  if (!boy || !girl) {
+    document.getElementById('status').textContent = '請輸入男生和女生的姓名！';
+    (!boy ? boyEl : girlEl).focus();
+    return;
+  }
+
+  if ([...boy].length > 10 || [...girl].length > 10) { document.getElementById('status').textContent = '每個姓名請控制在 10 個字以內。'; return; }
+  document.getElementById('status').textContent = '';
+  const b = analyze(boy);
+  const g = analyze(girl);
+
+  // ===== 配對演算法 =====
+  // 1. 總筆畫差（差越小越好）
+  const diff = Math.abs(b.total - g.total);
+  const diffScore = Math.max(0, 40 - diff * 0.8);
+
+  // 2. 筆畫和的五行相生相剋
+  const bEl = ELEMENTS[b.total % 5];
+  const gEl = ELEMENTS[g.total % 5];
+  const order = ['木','火','土','金','水']; // 相生順序
+  const bi = order.indexOf(bEl);
+  const gi = order.indexOf(gEl);
+  let elementScore = 0;
+  let elementMsg = '';
+  if (bi === gi) {
+    elementScore = 18;
+    elementMsg = '五行同氣，默契十足';
+  } else if ((bi + 1) % 5 === gi) {
+    elementScore = 25;
+    elementMsg = '五行相生，天作之合';
+  } else if ((gi + 1) % 5 === bi) {
+    elementScore = 25;
+    elementMsg = '五行相生，互補有情';
+  } else {
+    elementScore = 8;
+    elementMsg = '五行相剋，歡喜冤家';
+  }
+
+  // 3. 首字筆畫配對（天格）
+  const firstScore = Math.max(0, 20 - Math.abs(b.parts[0].s - g.parts[0].s) * 1.2);
+
+  // 4. 名字長度與疊字趣味加分
+  let bonus = 0;
+  if (b.chars.length === g.chars.length) bonus += 5;
+  if (boy === girl) bonus -= 10;
+  // 有共同字
+  const common = b.chars.filter(c => g.chars.includes(c));
+  if (common.length > 0) bonus += 6;
+
+  // 5. 加入姓名本身字元的穩定隨機（同樣名字結果固定）
+  const seedStr = JSON.stringify([boy, girl].sort()); // 交換姓名仍得相同分數
+  let hash = 0;
+  for (let i = 0; i < seedStr.length; i++) {
+    hash = (hash * 31 + seedStr.charCodeAt(i)) % 100000;
+  }
+  const lucky = hash % 15; // 0~14
+
+  let score = diffScore + elementScore + firstScore + bonus + lucky;
+  score = Math.max(1, Math.min(100, Math.round(score)));
+
+  // 評語
+  let comment = '';
+  if (score >= 90) comment = '天生一對，喬太守看了都想立刻證婚！';
+  else if (score >= 80) comment = '郎才女貌，這段姻緣很有戲！';
+  else if (score >= 70) comment = '相當速配，值得好好經營。';
+  else if (score >= 60) comment = '還不錯，緣分需要一點時間。';
+  else if (score >= 50) comment = '普普通通，當朋友也挺好。';
+  else if (score >= 40) comment = '有點挑戰，歡喜冤家型的。';
+  else if (score >= 30) comment = '喬太守皺眉：這對有點難配啊……';
+  else comment = '還是……各自安好吧。';
+
+  // 顯示
+  document.getElementById('names').innerHTML =
+    `${escapeHTML(boy)}<span class="heart" aria-hidden="true">❤</span>${escapeHTML(girl)}`;
+  document.getElementById('score').textContent = score;
+  document.getElementById('comment').textContent = comment;
+
+  document.getElementById('detail').innerHTML = `
+    <div class="row"><span>男方筆畫值</span><span>${b.total}（${bEl}）</span></div>
+    <div class="row"><span>女方筆畫值</span><span>${g.total}（${gEl}）</span></div>
+    <div class="row"><span>筆畫差距</span><span>${diff}</span></div>
+    <div class="row"><span>五行關係</span><span>${elementMsg}</span></div>
+    <div class="row"><span>拆字明細</span><span>${b.parts.map(p=>escapeHTML(p.ch)+'='+p.s+(p.estimated?'*':'')).join(' ')} / ${g.parts.map(p=>escapeHTML(p.ch)+'='+p.s+(p.estimated?'*':'')).join(' ')}</span></div>
+  `;
+
+  document.getElementById('detail').insertAdjacentHTML('beforeend', '<p class="notice">筆畫表僅供遊戲使用；標記 * 為未知字估算值。同一組姓名分數固定，交換順序也相同。</p>');
+  lastResult = `喬太守亂點鴛鴦譜\n${boy} ❤ ${girl}：${score} 分\n${comment}\n僅供娛樂，緣分還是靠自己經營。`;
+  const resultEl = document.getElementById('result');
+  resultEl.classList.add('show');
+  const bar = document.getElementById('bar');
+  bar.style.width = '0';
+  setTimeout(() => { bar.style.width = score + '%'; }, 50);
+}
+
+document.getElementById('match-form').addEventListener('submit', e => { e.preventDefault(); match(); });
+document.getElementById('example').addEventListener('click', () => { document.getElementById('boy').value = '張無忌'; document.getElementById('girl').value = '趙敏'; match(); });
+document.getElementById('reset').addEventListener('click', () => { document.getElementById('match-form').reset(); document.getElementById('result').classList.remove('show'); document.getElementById('status').textContent = ''; lastResult = ''; document.getElementById('boy').focus(); });
+document.getElementById('copy').addEventListener('click', async () => {
+  const status = document.getElementById('status');
+  if (!lastResult) { status.textContent = '先配對一次，就可以複製結果囉。'; return; }
+  try { await navigator.clipboard.writeText(lastResult + '\n' + location.href); status.textContent = '已複製結果，可以貼給朋友。'; }
+  catch { status.textContent = '瀏覽器未允許複製，請直接選取結果文字複製。'; }
+});
+</script>
+</body>
+</html>
